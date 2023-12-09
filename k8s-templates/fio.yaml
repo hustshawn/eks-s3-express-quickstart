@@ -1,0 +1,38 @@
+apiVersion: apps/v1 
+kind: Deployment
+metadata:
+  name: fio-deployment
+spec:
+  selector:
+    matchLabels:
+      app: fio
+  template:
+    metadata:
+      labels:
+        app: fio
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                - key: topology.kubernetes.io/zone
+                  operator: In
+                  values:
+                  - us-east-1b # specify az where bucket lives, note: the code of the availability zone (https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html) must be used here (the AZ ID won't work)
+      containers:
+      - name: fio 
+        image: xridge/fio
+        resources:
+          limits:
+            cpu: "1"
+            memory: 2Gi
+        command: ["/bin/sh"]
+        args: ["-c", "tail -f /dev/null"]
+        volumeMounts:
+          - name: persistent-storage
+            mountPath: /data
+      volumes:
+        - name: persistent-storage
+          persistentVolumeClaim:
+            claimName: s3-express-claim

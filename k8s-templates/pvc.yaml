@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: s3-express-claim
+spec:
+  accessModes:
+    - ReadWriteMany # supported options: ReadWriteMany / ReadOnlyMany
+  storageClassName: "" # required for static provisioning
+  resources:
+    requests:
+      storage: ${size} # ignored, required
+  volumeName: s3-express-pv
